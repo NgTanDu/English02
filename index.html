@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 40px;
+        width: 90%;
+        max-width: 600px;
+      }
+
+      .button-group,
+      .translate-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 14px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      #english-content h2,
+      #vietnamese-content h2 {
+        font-size: 18px;
+        color: #444;
+        text-align: center;
+        margin: 0;
+      }
+
+      #english-content p,
+      #vietnamese-content p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555;
+        text-align: center;
+      }
+
+      h2 {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+        }
+
+        button {
+          font-size: 12px;
+          padding: 10px 20px;
+        }
+
+        h2 {
+          font-size: 16px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+      }
+    </style>
+    <title>Random Question</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="button-group">
+        <button id="random-btn">Random</button>
+        <button id="replay-btn">Replay</button>
+        <button id="toggle-question-btn">Show Question</button>
+        <button id="toggle-answer-btn" class="hidden">Show Answer</button>
+      </div>
+      <div class="content">
+        <div id="english-content">
+          <h2 id="question-en" class="hidden">Question EN</h2>
+          <p id="answer-en" class="hidden">Answer EN</p>
+        </div>
+        <div class="translate-buttons">
+          <button id="translate-question-btn" class="hidden">Translate Question</button>
+          <button id="translate-answer-btn" class="hidden">Translate Answer</button>
+        </div>
+        <div id="vietnamese-content">
+          <h2 id="question-vi" class="hidden">Question VI</h2>
+          <p id="answer-vi" class="hidden">Answer VI</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data
+      const data = [
+        {
+          question_en: "Have you ever worked part-time?",
+          answer_en: "Yes, I have worked part-time as a cashier and a tutor before.",
+          question_vi: "Bạn đã từng làm việc bán thời gian chưa?",
+          answer_vi: "Có, tôi đã từng làm việc bán thời gian như thu ngân và gia sư trước đây.",
+        },
+        {
+          question_en: "What kind of job do you want to do in the future?",
+          answer_en:
+            "In the future, I would like to work in software development or digital marketing.",
+          question_vi: "Bạn muốn làm công việc gì trong tương lai?",
+          answer_vi:
+            "Trong tương lai, tôi muốn làm việc trong lĩnh vực phát triển phần mềm hoặc marketing số.",
+        },
+        {
+          question_en: "What have you been doing to prepare for your future job?",
+          answer_en:
+            "I have been taking online courses and doing internships to gain practical experience.",
+          question_vi: "Bạn đã làm gì để chuẩn bị cho công việc trong tương lai?",
+          answer_vi:
+            "Tôi đã tham gia các khóa học trực tuyến và thực tập để có được kinh nghiệm thực tế.",
+        },
+        {
+          question_en: "What do you do to get ready for a job interview?",
+          answer_en:
+            "I usually research the company, practice common interview questions, and prepare my resume.",
+          question_vi: "Bạn thường làm gì để chuẩn bị cho một buổi phỏng vấn xin việc?",
+          answer_vi:
+            "Tôi thường nghiên cứu về công ty, luyện tập các câu hỏi phỏng vấn phổ biến và chuẩn bị sơ yếu lý lịch.",
+        },
+        {
+          question_en: "What invention do you think is useful for your study?",
+          answer_en: "I think the laptop and internet are the most useful inventions for my study.",
+          question_vi: "Phát minh nào bạn nghĩ là hữu ích cho việc học của bạn?",
+          answer_vi:
+            "Tôi nghĩ rằng máy tính xách tay và internet là những phát minh hữu ích nhất cho việc học của tôi.",
+        },
+        {
+          question_en: "What do you usually do on the Internet?",
+          answer_en:
+            "I mostly use the internet for researching, watching educational videos, and staying connected on social media.",
+          question_vi: "Bạn thường làm gì trên Internet?",
+          answer_vi:
+            "Tôi chủ yếu sử dụng internet để nghiên cứu, xem video giáo dục và kết nối trên mạng xã hội.",
+        },
+        {
+          question_en:
+            "Do you prefer using a mobile phone or a laptop to study online? And which is better for research?",
+          answer_en:
+            "I prefer using a laptop to study online as it is more comfortable for long sessions and better for research.",
+          question_vi:
+            "Bạn thích dùng điện thoại hay máy tính xách tay để học trực tuyến? Và cái nào tốt hơn cho việc nghiên cứu?",
+          answer_vi:
+            "Tôi thích sử dụng máy tính xách tay để học trực tuyến vì nó thoải mái hơn cho các buổi học dài và tốt hơn cho việc nghiên cứu.",
+        },
+        {
+          question_en: "Do you know any famous inventor?",
+          answer_en:
+            "Yes, I know Thomas Edison, who invented the light bulb, and Nikola Tesla, known for his work with electricity.",
+          question_vi: "Bạn có biết nhà phát minh nào nổi tiếng không?",
+          answer_vi:
+            "Có, tôi biết Thomas Edison, người phát minh ra bóng đèn, và Nikola Tesla, nổi tiếng với công trình về điện.",
+        },
+        {
+          question_en: "What activities do you like to do when you are on holiday?",
+          answer_en:
+            "I enjoy traveling, exploring new places, and relaxing by the beach when on holiday.",
+          question_vi: "Bạn thích làm gì khi đi nghỉ lễ?",
+          answer_vi:
+            "Tôi thích du lịch, khám phá những nơi mới và thư giãn bên bãi biển khi nghỉ lễ.",
+        },
+        {
+          question_en: "What kind of accommodation do you like to stay in when you are on holiday?",
+          answer_en:
+            "I prefer staying in hotels or resorts that offer good amenities and are close to tourist attractions.",
+          question_vi: "Bạn thích ở loại chỗ nghỉ nào khi đi du lịch?",
+          answer_vi:
+            "Tôi thích ở khách sạn hoặc khu nghỉ dưỡng có tiện nghi tốt và gần các điểm du lịch.",
+        },
+        {
+          question_en: "Have you ever had any problems on holiday?",
+          answer_en:
+            "Yes, once I lost my luggage during a flight, but the airline quickly resolved the issue.",
+          question_vi: "Bạn đã từng gặp vấn đề gì khi đi du lịch chưa?",
+          answer_vi:
+            "Có, tôi từng bị mất hành lý trong một chuyến bay, nhưng hãng hàng không đã nhanh chóng giải quyết vấn đề.",
+        },
+        {
+          question_en: "Do you prefer traveling in a group or on your own?",
+          answer_en:
+            "I prefer traveling with friends or family as it makes the experience more enjoyable.",
+          question_vi: "Bạn thích đi du lịch theo nhóm hay đi một mình?",
+          answer_vi:
+            "Tôi thích đi du lịch với bạn bè hoặc gia đình vì nó làm cho trải nghiệm thú vị hơn.",
+        },
+        {
+          question_en: "What is the last thing you bought online?",
+          answer_en: "The last thing I bought online was a pair of headphones.",
+          question_vi: "Món đồ cuối cùng bạn mua trực tuyến là gì?",
+          answer_vi: "Món đồ cuối cùng tôi mua trực tuyến là một chiếc tai nghe.",
+        },
+        {
+          question_en: "How important do you think logos are?",
+          answer_en:
+            "Logos are important because they represent the identity and values of a brand.",
+          question_vi: "Bạn nghĩ logo quan trọng như thế nào?",
+          answer_vi:
+            "Logo rất quan trọng vì chúng đại diện cho bản sắc và giá trị của thương hiệu.",
+        },
+        {
+          question_en:
+            "Which websites do you visit when you want to buy things such as clothes, shoes, and books?",
+          answer_en:
+            "I usually visit websites like Lazada, Shopee, and Tiki to buy clothes, shoes, and books.",
+          question_vi: "Bạn thường ghé thăm trang web nào để mua đồ như quần áo, giày dép và sách?",
+          answer_vi:
+            "Tôi thường ghé thăm các trang như Lazada, Shopee và Tiki để mua quần áo, giày dép và sách.",
+        },
+        {
+          question_en: "What do you think makes one website better than another?",
+          answer_en:
+            "A good website should be easy to navigate, fast to load, and have good customer service.",
+          question_vi: "Bạn nghĩ điều gì làm cho một trang web tốt hơn trang khác?",
+          answer_vi: "Một trang web tốt nên dễ sử dụng, tải nhanh và có dịch vụ khách hàng tốt.",
+        },
+        {
+          question_en: "Do you often play video games with your friends?",
+          answer_en: "Yes, I often play games like FIFA and Call of Duty with my friends.",
+          question_vi: "Bạn có thường chơi trò chơi điện tử với bạn bè không?",
+          answer_vi: "Có, tôi thường chơi các trò như FIFA và Call of Duty với bạn bè.",
+        },
+        {
+          question_en: "What sorts of games are popular in your country?",
+          answer_en:
+            "In my country, games like PUBG, League of Legends, and mobile games like Free Fire are very popular.",
+          question_vi: "Những loại trò chơi nào phổ biến ở đất nước của bạn?",
+          answer_vi:
+            "Ở nước tôi, các trò như PUBG, Liên Minh Huyền Thoại và game di động như Free Fire rất phổ biến.",
+        },
+        {
+          question_en: "Do you think that video games are bad for you?",
+          answer_en:
+            "I think playing video games in moderation is fine, but excessive gaming can lead to health issues.",
+          question_vi: "Bạn có nghĩ trò chơi điện tử có hại cho bạn không?",
+          answer_vi:
+            "Tôi nghĩ chơi game một cách vừa phải thì không sao, nhưng chơi quá mức có thể gây vấn đề sức khỏe.",
+        },
+        {
+          question_en: "What historical place in Vietnam have you ever visited?",
+          answer_en:
+            "I have visited the ancient town of Hoi An, which is a UNESCO World Heritage site.",
+          question_vi: "Bạn đã từng ghé thăm địa điểm lịch sử nào ở Việt Nam chưa?",
+          answer_vi: "Tôi đã từng đến phố cổ Hội An, một di sản thế giới được UNESCO công nhận.",
+        },
+        {
+          question_en: "If you could live in another country, where would you move to?",
+          answer_en:
+            "If I could, I would move to Japan because I love the culture and technology there.",
+          question_vi: "Nếu bạn có thể sống ở một quốc gia khác, bạn sẽ chuyển đến đâu?",
+          answer_vi: "Nếu có thể, tôi sẽ chuyển đến Nhật Bản vì tôi yêu văn hóa và công nghệ ở đó.",
+        },
+        {
+          question_en: "If you won a lot of money, would you stop working/studying?",
+          answer_en:
+            "I would continue studying, but I would take time to travel and invest in my personal development.",
+          question_vi: "Nếu bạn thắng nhiều tiền, bạn có ngừng làm việc/học tập không?",
+          answer_vi:
+            "Tôi sẽ tiếp tục học, nhưng tôi sẽ dành thời gian để du lịch và đầu tư vào sự phát triển cá nhân.",
+        },
+        {
+          question_en: "What is your favorite animal?",
+          answer_en: "My favorite animal is a dog because they are loyal and friendly.",
+          question_vi: "Con vật yêu thích của bạn là gì?",
+          answer_vi: "Con vật yêu thích của tôi là chó vì chúng trung thành và thân thiện.",
+        },
+        {
+          question_en: "What do you usually do on weekends?",
+          answer_en:
+            "On weekends, I usually spend time with family, watch movies, and sometimes go out with friends.",
+          question_vi: "Bạn thường làm gì vào cuối tuần?",
+          answer_vi:
+            "Vào cuối tuần, tôi thường dành thời gian cho gia đình, xem phim và đôi khi ra ngoài với bạn bè.",
+        },
+      ];
+
+      // Used Content
+      let usedContent = [];
+
+      // Elements for Event Listeners
+      const elements = {
+        randomBtn: document.getElementById("random-btn"),
+        replayBtn: document.getElementById("replay-btn"),
+        toggleQuestionBtn: document.getElementById("toggle-question-btn"),
+        toggleAnswerBtn: document.getElementById("toggle-answer-btn"),
+        translateQuestionBtn: document.getElementById("translate-question-btn"),
+        translateAnswerBtn: document.getElementById("translate-answer-btn"),
+        questionEn: document.getElementById("question-en"),
+        answerEn: document.getElementById("answer-en"),
+        questionVi: document.getElementById("question-vi"),
+        answerVi: document.getElementById("answer-vi"),
+      };
+
+      // Random Content
+      function getRandomContent() {
+        if (data.length === 0) {
+          data.push(...usedContent);
+          usedContent = [];
+          alert("All questions have been shown. The list has been reset.");
+        }
+        const index = Math.floor(Math.random() * data.length);
+        const content = data.splice(index, 1)[0];
+        usedContent.push(content);
+        return content;
+      }
+
+      // Text-to-Speech
+      function readContent(content) {
+        const utterance = new SpeechSynthesisUtterance(content);
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // Event Listeners
+      elements.randomBtn.addEventListener("click", () => {
+        const content = getRandomContent();
+        elements.questionEn.textContent = content.question_en;
+        elements.answerEn.textContent = content.answer_en;
+        elements.questionVi.textContent = content.question_vi;
+        elements.answerVi.textContent = content.answer_vi;
+
+        readContent(content.question_en);
+      });
+
+      // Replay the question
+      elements.replayBtn.addEventListener("click", () => {
+        const content = usedContent[usedContent.length - 1];
+        readContent(content.question_en);
+      });
+
+      // Toggle question
+      elements.toggleQuestionBtn.addEventListener("click", () => {
+        if (elements.questionEn.classList.contains("hidden")) {
+          elements.questionEn.classList.remove("hidden");
+          elements.toggleAnswerBtn.classList.remove("hidden");
+          elements.translateQuestionBtn.classList.remove("hidden");
+          elements.toggleQuestionBtn.textContent = "Hide Question";
+        } else {
+          elements.answerEn.classList.add("hidden");
+          elements.answerVi.classList.add("hidden");
+          elements.questionEn.classList.add("hidden");
+          elements.questionVi.classList.add("hidden");
+          elements.toggleAnswerBtn.classList.add("hidden");
+          elements.translateAnswerBtn.classList.add("hidden");
+          elements.translateQuestionBtn.classList.add("hidden");
+          elements.toggleAnswerBtn.textContent = "Show Answer";
+          elements.toggleQuestionBtn.textContent = "Show Question";
+        }
+      });
+
+      // Toggle answer
+      elements.toggleAnswerBtn.addEventListener("click", () => {
+        if (elements.answerEn.classList.contains("hidden")) {
+          elements.answerEn.classList.remove("hidden");
+          elements.translateAnswerBtn.classList.remove("hidden");
+          elements.toggleAnswerBtn.textContent = "Hide Answer";
+        } else {
+          elements.answerEn.classList.add("hidden");
+          elements.answerVi.classList.add("hidden");
+          elements.translateAnswerBtn.classList.add("hidden");
+          elements.translateAnswerBtn.textContent = "Translate Answer";
+          elements.toggleAnswerBtn.textContent = "Show Answer";
+        }
+      });
+
+      // Translate question
+      elements.translateQuestionBtn.addEventListener("click", () => {
+        if (elements.questionVi.classList.contains("hidden")) {
+          elements.questionVi.classList.remove("hidden");
+          elements.translateQuestionBtn.textContent = "Hide Translate Question";
+        } else {
+          elements.questionVi.classList.add("hidden");
+          elements.translateQuestionBtn.textContent = "Show English";
+        }
+      });
+
+      // Translate answer
+      elements.translateAnswerBtn.addEventListener("click", () => {
+        if (elements.answerVi.classList.contains("hidden")) {
+          elements.answerVi.classList.remove("hidden");
+          elements.translateAnswerBtn.textContent = "Hide Translate Answer";
+        } else {
+          elements.answerVi.classList.add("hidden");
+          elements.translateAnswerBtn.textContent = "Show Vietnamese";
+        }
+      });
+    </script>
+  </body>
+</html>
